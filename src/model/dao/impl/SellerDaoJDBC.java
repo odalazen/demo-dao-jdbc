@@ -1,7 +1,6 @@
 package model.dao.impl;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,7 +22,9 @@ public class SellerDaoJDBC implements SellerDao{
 	
 	public SellerDaoJDBC(Connection conn) {
 		this.conn = conn;
+		
 	}
+
 	
 	@Override
 	public void insert(Seller obj) {
@@ -73,8 +74,8 @@ public class SellerDaoJDBC implements SellerDao{
 			st = conn.prepareStatement(
 					
 					"UPDATE Seller"
-					+"SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ?"
-					+"WHERE Id = ?"
+					+" SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ?"
+					+" WHERE Id = ?"
 					
 					);
 			
@@ -85,6 +86,7 @@ public class SellerDaoJDBC implements SellerDao{
 			st.setInt(5, obj.getDepartment().getId());
 			st.setInt(6, obj.getId());
 			
+			st.execute();
 		}
 		catch(SQLException e) {
 			throw new DbException(e.getMessage());
@@ -97,7 +99,40 @@ public class SellerDaoJDBC implements SellerDao{
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement(
+					
+					"SELECT * FROM Seller"
+					+ " WHERE Id = ?"
+					);
+			
+			
+			st.setInt(1, id);
+
+			rs = st.executeQuery();
+			
+			while(rs.next()) {
+				
+						st = conn.prepareStatement(
+								
+								"DELETE FROM Seller"
+								+ " WHERE Id = ?"
+								);
+					
+						st.setInt(1, id);
+					
+					System.out.println("Usuario "+ rs.getString("Name")+ " deletado!");
+				
+			}
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
 		
 	}
 
